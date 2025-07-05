@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\ledblink.obj" 
+TO ".\Objects\ledblink" 
+PRINT(".\Listings\ledblink.m51")
