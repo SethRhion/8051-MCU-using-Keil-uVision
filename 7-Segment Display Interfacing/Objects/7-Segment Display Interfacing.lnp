@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\7-Segment Display Interfacing.obj" 
+TO ".\Objects\7-Segment Display Interfacing" 
+PRINT(".\Listings\7-Segment Display Interfacing.m51")
