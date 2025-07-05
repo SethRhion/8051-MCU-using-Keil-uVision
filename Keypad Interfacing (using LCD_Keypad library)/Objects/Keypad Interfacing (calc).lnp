@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\Keypad Interfacing (calc).obj" 
+TO ".\Objects\Keypad Interfacing (calc)" 
+PRINT(".\Listings\Keypad Interfacing (calc).m51")

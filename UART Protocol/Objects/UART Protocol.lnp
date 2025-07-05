@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\UART Protocol.obj" 
+TO ".\Objects\UART Protocol" 
+PRINT(".\Listings\UART Protocol.m51")

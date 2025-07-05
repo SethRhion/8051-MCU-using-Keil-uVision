@@ -1,0 +1,70 @@
+C51 COMPILER V9.60.7.0   KEYPAD_INTERFACING__CALC_                                         01/01/2025 17:57:16 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEYPAD_INTERFACING__CALC_
+OBJECT MODULE PLACED IN .\Objects\Keypad Interfacing (calc).obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE Keypad Interfacing (calc).c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND 
+                    -PRINT(.\Listings\Keypad Interfacing (calc).lst) TABS(2) OBJECT(.\Objects\Keypad Interfacing (calc).obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "delay.h"
+   3          
+   4          sbit rs = P1^0;
+   5          sbit en = P1^1;
+   6          unsigned int lcd_port=2;
+   7          
+   8          unsigned int keypad_port=3;
+   9          unsigned int keypad_totalrows=4,keypad_totalcolumnns=4;
+  10          unsigned int keypad_rowpins[]={0,1,2,3};
+  11          unsigned int keypad_columnpins[]={4,5,6,7};
+  12          unsigned char keys[4][4] = {{'7','8','9','/'},{'4','5','6','x'},{'1','2','3','-'},{'C','0','=','+'}};
+  13          
+  14          #include "LCD_Keypad.h"
+  15          
+  16          
+  17          int main()
+  18          {
+  19   1        unsigned int key_pressed;
+  20   1        //unsigned char key;
+  21   1        
+  22   1        lcd_init();     //Intialises LCD Display
+  23   1        lcd_clear();
+  24   1        lcd_setcursor(0,0);
+  25   1        lcd_printstring("LCD ON");
+  26   1        delay(1000);
+  27   1        
+  28   1        lcd_clear();
+  29   1        lcd_setcursor(0,0);
+  30   1        
+  31   1        while(1)
+  32   1        {
+  33   2          key_pressed = checkkeypad();     //Checking if there is any pressed key
+  34   2          while(key_pressed == 1)
+  35   2          {
+  36   3            //key = getkey();
+  37   3            //lcd_printchar(key);
+  38   3            
+  39   3            //delay(1000);
+  40   3            
+  41   3            lcd_printkey();
+  42   3          }
+  43   2        }
+  44   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3204    ----
+   CONSTANT SIZE    =     23    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     40      36
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.60.7.0   KEYPAD_INTERFACING__CALC_                                         01/01/2025 17:57:16 PAGE 2   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

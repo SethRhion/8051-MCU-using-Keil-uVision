@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\Ext EEPROM.obj" 
+TO ".\Objects\I2C Protocol (using I2C library)" 
+PRINT(".\Listings\I2C Protocol (using I2C library).m51")

@@ -1,0 +1,84 @@
+C51 COMPILER V9.60.7.0   UART_PROTOCOL                                                     02/21/2025 03:16:26 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE UART_PROTOCOL
+OBJECT MODULE PLACED IN .\Objects\UART Protocol.obj
+COMPILER INVOKED BY: C:\Users\sethg\AppData\Local\Keil_v5\C51\BIN\C51.EXE UART Protocol.c OPTIMIZE(8,SPEED) BROWSE DEBUG
+                    - OBJECTEXTEND PRINT(.\Listings\UART Protocol.lst) TABS(2) OBJECT(.\Objects\UART Protocol.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          
+   3          void UART_init()
+   4          {
+   5   1        SCON = 0x50;       //(0101 0000) setting mode=1 (variable 8-bit mode), REN=1 (recieve enable)
+   6   1        TMOD = 0x20;       //timer1 = auto_reload mode (0010 0000)
+   7   1        TH1 = 0xFD;       //loading  253 to TH1 so as to get 9600 baudrate (formula: TH1 = 255 - ((freq/12)/(32*b
+             -audrate)))
+   8   1        TR1 = 1;         //start timer1
+   9   1      }
+  10          
+  11          void UART_sendchar(unsigned char Data)
+  12          {
+  13   1        SBUF = Data;
+  14   1        while(TI == 0);     //stay here while transmission is going on
+  15   1        TI = 0;             //Resetting TI for the next transmission
+  16   1      }
+  17          
+  18          void UART_sendstring(unsigned char text[])
+  19          {
+  20   1        unsigned int n=0, i;
+  21   1        while(text[n] != '\0')      //calculates number of characters in text/string
+  22   1        {
+  23   2            n++;
+  24   2        }
+  25   1        
+  26   1        for (i=0 ; i<n ; i++)       //sends each character of given text/string individually
+  27   1        {
+  28   2          SBUF = text[i];
+  29   2          while(TI == 0);     //stay here while transmission is going on
+  30   2          TI = 0;             //Resetting TI for the next transmission
+  31   2        }
+  32   1      }
+  33          
+  34          unsigned char UART_recieve()
+  35          {
+  36   1        while(RI == 0);     //stay here while reception is going on
+  37   1        RI = 0;             //Resetting RI for the next reception
+  38   1        return SBUF;       //Returns received data (character)
+  39   1      }
+  40          
+  41          void main()
+  42          {
+  43   1        unsigned char word[] = "Press any key: ";
+  44   1        unsigned char Data;
+  45   1        
+  46   1        UART_init();
+  47   1        UART_sendstring(word);
+  48   1        
+  49   1        while(1)
+  50   1        {
+  51   2          Data = UART_recieve();
+  52   2          UART_sendchar(0x0D);       //Sets to next line in UART terminal
+  53   2          UART_sendstring("Received Data: ");
+C51 COMPILER V9.60.7.0   UART_PROTOCOL                                                     02/21/2025 03:16:26 PAGE 2   
+
+  54   2          UART_sendchar(Data);
+  55   2          P1 = Data;
+  56   2        }
+  57   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    165    ----
+   CONSTANT SIZE    =     32    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      21
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

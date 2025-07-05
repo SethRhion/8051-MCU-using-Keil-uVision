@@ -1,0 +1,76 @@
+C51 COMPILER V9.60.7.0   ADC0804_INTERFACING                                               01/03/2025 04:06:05 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE ADC0804_INTERFACING
+OBJECT MODULE PLACED IN .\Objects\ADC0804 Interfacing.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE ADC0804 Interfacing.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(
+                    -.\Listings\ADC0804 Interfacing.lst) TABS(2) OBJECT(.\Objects\ADC0804 Interfacing.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "delay.h"
+   3          
+   4          unsigned int lcd_port=2;      //Specify Port used for rs,en,datapins as global variable
+   5          sbit en = P0^7;
+   6          sbit rs = P0^6;     //Specify rs and en pins as global variable
+   7          
+   8          #include "LCD.h"
+   9          
+  10          sbit ADC_RDpin = P0^0;
+  11          sbit ADC_WRpin = P0^1;
+  12          sbit ADC_INTRpin = P0^2;
+  13          unsigned int ADC_port = 1;
+  14          sfr ADC = 0x90;  //P1 address
+  15          
+  16          void main()
+  17          {
+  18   1        lcd_init();
+  19   1        lcd_setcursor(0,0);
+  20   1        lcd_printstring("8051 Project");
+  21   1        lcd_setcursor(1,0);
+  22   1        lcd_printstring("ADC Interfacing");
+  23   1        delay(1000);
+  24   1        
+  25   1        while(1)
+  26   1        {
+  27   2          ADC_RDpin = 1;   //Read function is Turn OFF i.e active-low
+  28   2          ADC_WRpin = 0;   //Starts the conversion i.e active-low
+  29   2          delay(100);
+  30   2          ADC_WRpin = 1;
+  31   2          while(ADC_INTRpin==1);  //Do nothing & wait for conversion to completed
+  32   2          delay(100);
+  33   2          ADC_RDpin = 0;   //Read converted Data from ADC to MCU
+  34   2          ADC_INTRpin = 1;   //Next conversion
+  35   2          
+  36   2          lcd_clear();
+  37   2          lcd_setcursor(0,0);
+  38   2          lcd_printstring("ADC value");
+  39   2          lcd_setcursor(1,0);
+  40   2          lcd_printnumber(ADC);
+  41   2          delay(1000);
+  42   2          
+  43   2          lcd_clear();
+  44   2          lcd_setcursor(0,0);
+  45   2          lcd_printstring("Temp value");
+  46   2          lcd_setcursor(1,0);
+  47   2          lcd_printnumber(2*ADC);
+  48   2          delay(1000);
+  49   2        }
+  50   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    887    ----
+C51 COMPILER V9.60.7.0   ADC0804_INTERFACING                                               01/03/2025 04:06:05 PAGE 2   
+
+   CONSTANT SIZE    =     66    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4      26
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,93 @@
+C51 COMPILER V9.60.7.0   SPI_ADC                                                           01/15/2025 11:57:02 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SPI_ADC
+OBJECT MODULE PLACED IN .\Objects\SPI_ADC.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE SPI_ADC.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\S
+                    -PI_ADC.lst) TABS(2) OBJECT(.\Objects\SPI_ADC.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "delay.h"
+   3          
+   4          unsigned int lcd_port=2;      //Specify Port used for rs,en,datapins as global variable
+   5          sbit en = P1^1; sbit rs = P1^0;     //Specify rs and en pins as global variable
+   6          
+   7          sbit cs=P1^5;   //chip select i.e slave select
+   8          sbit clk=P1^2;   //serial clock
+   9          sbit din=P1^3;   //MOSI
+  10          sbit dout=P1^4;   //MISO
+  11          
+  12          #include "LCD.h"
+  13          
+  14          unsigned int SPI_ADC_value()
+  15          {
+  16   1        unsigned int i,temp;
+  17   1        cs=0;
+  18   1        clk=0; din=1 ; clk=1;   //start
+  19   1        clk=0; din=1 ; clk=1;   //single ended
+  20   1        
+  21   1        /*ADC Channel selection*/
+  22   1        //E.g d2=0,d1=0,d0=0 : CH0
+  23   1        clk=0; din=0 ; clk=1;   //d2
+  24   1        clk=0; din=0 ; clk=1;   //d1
+  25   1        clk=0; din=0 ; clk=1;   //d0
+  26   1        
+  27   1        clk=0; din=1 ; clk=1;   //t sample
+  28   1        clk=0; din=1 ; clk=1;   //nullbit
+  29   1        
+  30   1        /*Reading Data from slave*/
+  31   1        for (i=11; i>=0 ; i--)
+  32   1        {
+  33   2          clk=0;
+  34   2          if(dout==1)
+  35   2          {
+  36   3            temp |= (1<<i);
+  37   3          }
+  38   2          clk=1;
+  39   2        }
+  40   1        cs=1;
+  41   1        
+  42   1        return temp;
+  43   1      }
+  44          
+  45          void main()
+  46          {
+  47   1        unsigned int temp;
+  48   1        
+  49   1        lcd_init();
+  50   1        lcd_clear();
+  51   1        lcd_setcursor(0,0);
+  52   1        lcd_printstring("8051 Project");
+  53   1        lcd_setcursor(1,0);
+  54   1        lcd_printstring("SPI Protocol");
+C51 COMPILER V9.60.7.0   SPI_ADC                                                           01/15/2025 11:57:02 PAGE 2   
+
+  55   1        delay(1000);
+  56   1        
+  57   1        while(1)
+  58   1        {
+  59   2          temp = SPI_ADC_value();   //Getting ADC value from slave
+  60   2          lcd_clear();
+  61   2          lcd_setcursor(0,0);
+  62   2          lcd_printstring("ADC value");
+  63   2          lcd_setcursor(1,0);
+  64   2          lcd_printnumber(temp);    //NOTE:Can only print whole numbers from 0 to 65535(0xFFFF) i.e highest 16-bi
+             -ts number
+  65   2        }
+  66   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    915    ----
+   CONSTANT SIZE    =     52    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2      28
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

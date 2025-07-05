@@ -1,0 +1,80 @@
+C51 COMPILER V9.60.7.0   EEPROM_INTERFACING                                                01/18/2025 18:45:08 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE EEPROM_INTERFACING
+OBJECT MODULE PLACED IN .\Objects\EEPROM Interfacing.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE EEPROM Interfacing.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.
+                    -\Listings\EEPROM Interfacing.lst) TABS(2) OBJECT(.\Objects\EEPROM Interfacing.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "delay.h"
+   3          
+   4          unsigned int lcd_port=2;      //Specify Port used for rs,en,datapins as global variable
+   5          sbit en = P1^1;
+   6          sbit rs = P1^0;     //Specify rs and en pins as global variable
+   7          
+   8          #include "LCD.h"
+   9          
+  10          sbit SCL = P3^0;
+  11          sbit SDA = P3^1;
+  12          
+  13          #include "I2C.h"
+  14          
+  15          #define EEPROM_ID 0xA0     // EEPROM ID
+  16          
+  17          #include "EEPROM.h"
+  18          
+  19          void main()
+  20          {
+  21   1        unsigned char data1,data2;
+  22   1        unsigned char letter='S';
+  23   1        unsigned char address1=0x00;
+  24   1        unsigned char address2 = address1 + sizeof(letter);
+  25   1        
+  26   1        lcd_init();
+  27   1        lcd_setcursor(0,0);
+  28   1        lcd_printstring("8051 Project");
+  29   1        lcd_setcursor(1,0);
+  30   1        lcd_printstring("I2C Protocol");
+  31   1        delay(1000);
+  32   1        
+  33   1        /*Writing Data to slave*/
+  34   1        EEPROM_write(address1, letter);
+  35   1        EEPROM_write(address2, 132);     //NOTE: Maximum is 8-bit(i.e 255) data per register address
+  36   1        
+  37   1        delay(500);     //Necessasily for distinguishing write and read operations
+  38   1        
+  39   1        /*Reading Data from slave*/
+  40   1        data1 = EEPROM_read(address1);
+  41   1        data2 = EEPROM_read(address2);
+  42   1        
+  43   1        lcd_clear();
+  44   1        lcd_setcursor(0,0);
+  45   1        lcd_printstring("Recieved Data");
+  46   1        lcd_setcursor(1,0);
+  47   1        lcd_printchar(data1);
+  48   1        lcd_printnumber(data2);
+  49   1        
+  50   1        while(1)
+  51   1        {
+  52   2          //MY CODE
+  53   2        }
+  54   1      }
+C51 COMPILER V9.60.7.0   EEPROM_INTERFACING                                                01/18/2025 18:45:08 PAGE 2   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1322    ----
+   CONSTANT SIZE    =     56    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2      46
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

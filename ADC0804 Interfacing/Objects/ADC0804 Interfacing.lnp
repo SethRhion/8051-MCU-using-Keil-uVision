@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\ADC0804 Interfacing.obj" 
+TO ".\Objects\ADC0804 Interfacing" 
+PRINT(".\Listings\ADC0804 Interfacing.m51")

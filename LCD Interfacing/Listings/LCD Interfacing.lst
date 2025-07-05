@@ -1,0 +1,108 @@
+C51 COMPILER V9.60.7.0   LCD_INTERFACING                                                   12/27/2024 00:12:27 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE LCD_INTERFACING
+OBJECT MODULE PLACED IN .\Objects\LCD Interfacing.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE LCD Interfacing.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Li
+                    -stings\LCD Interfacing.lst) TABS(2) OBJECT(.\Objects\LCD Interfacing.obj)
+
+line level    source
+
+   1          #include<reg51.h>
+   2          
+   3          sbit rs = P1^0;
+   4          sbit en = P1^1;
+   5          
+   6          void delay(unsigned int count)
+   7          {
+   8   1        unsigned int i;
+   9   1        while(count)
+  10   1        {
+  11   2          i = 115;
+  12   2          while(i > 0)
+  13   2            i--;
+  14   2          count--;
+  15   2        }
+  16   1      }
+  17          
+  18          void lcd_data(unsigned char abc)   //Funtion to print to LCD display (recieves only one character at a tim
+             -e)
+  19          {
+  20   1        rs = 1;
+  21   1        en = 1;
+  22   1        P2 = abc;
+  23   1        delay(50);
+  24   1        en = 0;
+  25   1      }
+  26          
+  27          void lcd_cmd(unsigned char abc)  //Funtion for sending commands to LCD display
+  28          {
+  29   1        rs = 0;
+  30   1        en = 1;
+  31   1        P2 = abc;
+  32   1        delay(50);
+  33   1        en = 0;
+  34   1      }
+  35          
+  36          void lcd_data2(unsigned char text[])   //My own generated function (recieves entire string/text at a time)
+  37          {
+  38   1        unsigned int n=0, i;
+  39   1        while(text[n] != '\0')  //calculates number of characters in text/string
+  40   1        {
+  41   2            n++;
+  42   2        }
+  43   1        for (i=0 ; i<n ; i++)  //prints each character of given text/string at a time
+  44   1        {
+  45   2          rs = 1;
+  46   2          en = 1;
+  47   2          P2 = text[i];
+  48   2          delay(50);
+  49   2          en = 0;
+  50   2        }
+  51   1      }
+  52            
+  53          void main()
+C51 COMPILER V9.60.7.0   LCD_INTERFACING                                                   12/27/2024 00:12:27 PAGE 2   
+
+  54          {
+  55   1        lcd_cmd(0x38) ;  // initialize
+  56   1        lcd_cmd (0x02);  //return home
+  57   1        lcd_cmd(0x01);   //clear display
+  58   1        lcd_cmd(0x0C);   //Display ON cursor OFF
+  59   1        lcd_cmd(0x06) ;
+  60   1        lcd_cmd(0x80);   //Address where lcddata should be printed (0x80 means row=0,column=0) i.e address is fr
+             -om 0x80 to 0x8F
+  61   1      
+  62   1        //lcd_data2("Hello Seth");
+  63   1        
+  64   1        //lcd_cmd(0xC0);   //Address where lcddata should be printed (0x80 means row=1,column=0) i.e address is f
+             -rom 0xC0 to 0xCF
+  65   1        //lcd_data2("Welcome");
+  66   1        
+  67   1        lcd_data('W');
+  68   1        lcd_data('e');
+  69   1        lcd_data('l');
+  70   1        lcd_data('c');
+  71   1        lcd_data('o');
+  72   1        lcd_data('m');
+  73   1        lcd_data('e');
+  74   1        
+  75   1        while(1)
+  76   1        {
+  77   2          //loop
+  78   2        }
+  79   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    207    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       7
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,61 @@
+C51 COMPILER V9.60.7.0   FOR_LOOP                                                          12/21/2024 23:16:07 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE FOR_LOOP
+OBJECT MODULE PLACED IN .\Objects\for loop.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE for loop.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -for loop.lst) TABS(2) OBJECT(.\Objects\for loop.obj)
+
+line level    source
+
+   1          #include<reg51.h>
+   2          
+   3          void delay(unsigned int count)
+   4          {
+   5   1        unsigned int i;
+   6   1        while(count)
+   7   1        {
+   8   2          i = 115;
+   9   2          while(i > 0)
+  10   2            i--;
+  11   2          count--;
+  12   2        }
+  13   1      }
+  14          void main()
+  15          {
+  16   1        unsigned char i;
+  17   1        while(1)
+  18   1        {
+  19   2          for (i=0 ; i<10 ; i++)
+  20   2          {
+  21   3            P3 = 0xFF;
+  22   3            delay(500);
+  23   3            P3 = 0x00;
+  24   3            delay(500);
+  25   3          }
+  26   2          delay(2000);
+  27   2          
+  28   2          for (i=0 ; i<10 ; i++)
+  29   2          {
+  30   3            P3 = 0xAA;
+  31   3            delay(500);
+  32   3            P3 = 0x55;
+  33   3            delay(500);
+  34   3          }
+  35   2          delay(2000);
+  36   2        }
+  37   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     81    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

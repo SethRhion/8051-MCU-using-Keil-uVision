@@ -1,0 +1,204 @@
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                    02/21/2025  03:16:26  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.4.0, INVOKED BY:
+C:\USERS\SETHG\APPDATA\LOCAL\KEIL_V5\C51\BIN\BL51.EXE .\Objects\STARTUP.obj, .\Objects\UART Protocol.obj TO .\Objects\UA
+>> RT Protocol PRINT (.\Listings\UART Protocol.m51)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\STARTUP.obj (?C_STARTUP)
+  .\Objects\UART Protocol.obj (UART_PROTOCOL)
+  C:\USERS\SETHG\APPDATA\LOCAL\KEIL_V5\C51\LIB\C51S.LIB (?C?COPY)
+  C:\USERS\SETHG\APPDATA\LOCAL\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDOPTR)
+
+
+LINK MAP OF MODULE:  .\Objects\UART Protocol (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0015H     UNIT         _DATA_GROUP_
+            IDATA   001DH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0123H     UNIT         ?C?LIB_CODE
+            CODE    0126H     004EH     UNIT         ?PR?_UART_SENDSTRING?UART_PROTOCOL
+            CODE    0174H     003BH     UNIT         ?PR?MAIN?UART_PROTOCOL
+            CODE    01AFH     0020H     UNIT         ?CO?UART_PROTOCOL
+            CODE    01CFH     000CH     UNIT         ?C_C51STARTUP
+            CODE    01DBH     000CH     UNIT         ?PR?UART_INIT?UART_PROTOCOL
+            CODE    01E7H     0008H     UNIT         ?PR?_UART_SENDCHAR?UART_PROTOCOL
+            CODE    01EFH     0008H     UNIT         ?PR?UART_RECIEVE?UART_PROTOCOL
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\UART Protocol (?C_STARTUP)
+
+
+SEGMENT                                      DATA_GROUP 
+  +--> CALLED SEGMENT                      START    LENGTH
+----------------------------------------------------------
+?C_C51STARTUP                              -----    -----
+  +--> ?PR?MAIN?UART_PROTOCOL
+
+?PR?MAIN?UART_PROTOCOL                     0008H    0010H
+  +--> ?CO?UART_PROTOCOL
+  +--> ?PR?UART_INIT?UART_PROTOCOL
+  +--> ?PR?_UART_SENDSTRING?UART_PROTOCOL
+  +--> ?PR?UART_RECIEVE?UART_PROTOCOL
+  +--> ?PR?_UART_SENDCHAR?UART_PROTOCOL
+
+?PR?_UART_SENDSTRING?UART_PROTOCOL         0018H    0005H
+
+
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  02/21/2025  03:16:26  PAGE 2
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\UART Protocol (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:01CFH         SEGMENT       ?C_C51STARTUP
+  I:001DH         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:01D2H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:01CFH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:01CFH         LINE#         133
+  C:01D1H         LINE#         134
+  C:01D2H         LINE#         135
+  C:01D3H         LINE#         136
+  C:01D5H         LINE#         185
+  C:01D8H         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        UART_PROTOCOL
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  C:01EFH         PUBLIC        UART_recieve
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  C:0174H         PUBLIC        main
+  D:0099H         PUBLIC        SBUF
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  C:01BFH         SYMBOL        _?ix1000
+  D:008DH         PUBLIC        TH1
+  C:01DBH         PUBLIC        UART_init
+  B:0088H.6       PUBLIC        TR1
+  C:0126H         PUBLIC        _UART_sendstring
+  C:01E7H         PUBLIC        _UART_sendchar
+  -------         PROC          UART_INIT
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  02/21/2025  03:16:26  PAGE 3
+
+
+  C:01DBH         LINE#         3
+  C:01DBH         LINE#         4
+  C:01DBH         LINE#         5
+  C:01DEH         LINE#         6
+  C:01E1H         LINE#         7
+  C:01E4H         LINE#         8
+  C:01E6H         LINE#         9
+  -------         ENDPROC       UART_INIT
+  -------         PROC          _UART_SENDCHAR
+  D:0007H         SYMBOL        Data
+  C:01E7H         LINE#         11
+  C:01E7H         LINE#         12
+  C:01E7H         LINE#         13
+  C:01E9H         LINE#         14
+  C:01ECH         LINE#         15
+  C:01EEH         LINE#         16
+  -------         ENDPROC       _UART_SENDCHAR
+  -------         PROC          _UART_SENDSTRING
+  D:0018H         SYMBOL        text
+  -------         DO            
+  D:001BH         SYMBOL        n
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:0126H         LINE#         18
+  C:012CH         LINE#         19
+  C:012CH         LINE#         20
+  C:0131H         LINE#         21
+  C:0142H         LINE#         22
+  C:0142H         LINE#         23
+  C:014AH         LINE#         24
+  C:014CH         LINE#         26
+  C:0158H         LINE#         27
+  C:0158H         LINE#         28
+  C:0167H         LINE#         29
+  C:016AH         LINE#         30
+  C:016CH         LINE#         31
+  C:0173H         LINE#         32
+  -------         ENDPROC       _UART_SENDSTRING
+  -------         PROC          UART_RECIEVE
+  C:01EFH         LINE#         34
+  C:01EFH         LINE#         35
+  C:01EFH         LINE#         36
+  C:01F2H         LINE#         37
+  C:01F4H         LINE#         38
+  C:01F6H         LINE#         39
+  -------         ENDPROC       UART_RECIEVE
+  -------         PROC          MAIN
+  -------         DO            
+  D:0008H         SYMBOL        word
+  D:0005H         SYMBOL        Data
+  -------         ENDDO         
+  C:0174H         LINE#         41
+  C:0174H         LINE#         42
+  C:0174H         LINE#         43
+  C:0187H         LINE#         46
+  C:018AH         LINE#         47
+  C:0193H         LINE#         49
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  02/21/2025  03:16:26  PAGE 4
+
+
+  C:0193H         LINE#         50
+  C:0193H         LINE#         51
+  C:0198H         LINE#         52
+  C:019DH         LINE#         53
+  C:01A6H         LINE#         54
+  C:01ABH         LINE#         55
+  C:01ADH         LINE#         56
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        UART_PROTOCOL
+
+  -------         MODULE        ?C?COPY
+  C:00D3H         PUBLIC        ?C?COPY
+  -------         ENDMOD        ?C?COPY
+
+  -------         MODULE        ?C?CLDOPTR
+  C:00F9H         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+
+Program Size: data=30.0 xdata=0 code=503
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

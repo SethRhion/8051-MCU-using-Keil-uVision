@@ -1,0 +1,216 @@
+C51 COMPILER V9.60.7.0   RTC                                                               01/18/2025 14:42:34 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE RTC
+OBJECT MODULE PLACED IN .\Objects\RTC.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE RTC.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\RTC.l
+                    -st) TABS(2) OBJECT(.\Objects\RTC.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "delay.h"
+   3          
+   4          unsigned int lcd_port=2;      //Specify Port used for rs,en,datapins as global variable
+   5          sbit en = P1^1;
+   6          sbit rs = P1^0;     //Specify rs and en pins as global variable
+   7          
+   8          #include "LCD.h"
+   9          
+  10          sbit SCL = P3^0;
+  11          sbit SDA = P3^1;
+  12          
+  13          #include "I2C.h"
+  14          
+  15          /* Below given values are fixed and should not be changed.
+  16              Refer Ds1307 DataSheet for more info*/ 
+  17          #define DS1307_ID 0xD0     // ds1307 ID
+  18          #define SEC_ADDRESS   0x00 // address to access ds1307 SEC register
+  19          #define DAY_ADDRESS   0x03 // address to access ds1307 DAY register
+  20          #define DATE_ADDRESS  0x04 // address to access ds1307 DATE register
+  21          #define control       0x07 // address to access ds1307 CONTROL register
+  22          
+  23          /*ds1307 initilization*/
+  24          void ds1307_Init()
+  25          {
+  26   1        I2C_start();        // Start i2c communication
+  27   1        
+  28   1        I2C_datawrite(DS1307_ID);
+  29   1        I2C_datawrite(control);
+  30   1        I2C_datawrite(0x00);
+  31   1        
+  32   1        I2C_stop();
+  33   1      }
+  34          
+  35          void ds1307_SetTime(unsigned char hh, unsigned char mm, unsigned char ss)
+  36          {
+  37   1        I2C_start();            // Start i2c communication
+  38   1        
+  39   1        I2C_datawrite(DS1307_ID);
+  40   1        I2C_datawrite(SEC_ADDRESS);
+  41   1        I2C_datawrite(ss);
+  42   1        I2C_datawrite(mm);
+  43   1        I2C_datawrite(hh);
+  44   1        
+  45   1        I2C_stop();             // Stop i2c communication after Setting the Time
+  46   1      }
+  47          
+  48          void ds1307_SetDayOfWeek(unsigned char day)
+  49          {
+  50   1        I2C_start();            // Start i2c communication
+  51   1        
+  52   1        I2C_datawrite(DS1307_ID);
+  53   1        I2C_datawrite(DAY_ADDRESS);
+  54   1        I2C_datawrite(day);
+C51 COMPILER V9.60.7.0   RTC                                                               01/18/2025 14:42:34 PAGE 2   
+
+  55   1        
+  56   1        I2C_stop();             // Stop i2c communication after Setting the Date
+  57   1      }
+  58          
+  59          void ds1307_SetDate(unsigned char dd, unsigned char mm, unsigned char yy)
+  60          {
+  61   1        I2C_start();            // Start i2c communication
+  62   1        
+  63   1        I2C_datawrite(DS1307_ID);
+  64   1        I2C_datawrite(DATE_ADDRESS);
+  65   1        I2C_datawrite(dd);
+  66   1        I2C_datawrite(mm);
+  67   1        I2C_datawrite(yy);
+  68   1        
+  69   1        I2C_stop();             // Stop i2c communication after Setting the Date
+  70   1      }
+  71          
+  72          void ds1307_GetTime(unsigned char *h_ptr,unsigned char *m_ptr,unsigned char *s_ptr)
+  73          {
+  74   1        unsigned int temp;
+  75   1        I2C_start();           // Start i2c communication
+  76   1        
+  77   1        I2C_datawrite(DS1307_ID);
+  78   1        I2C_datawrite(SEC_ADDRESS);
+  79   1        
+  80   1        I2C_stop();
+  81   1        
+  82   1        I2C_start();
+  83   1        
+  84   1        I2C_datawrite(0xD1);
+  85   1        temp = I2C_dataread();                   //Read hex value of sec from RTC
+  86   1        *s_ptr = ((temp>>4)*10)+(temp&0x0F);     //Convert hex value of sec into decimal form
+  87   1        I2C_Ack();
+  88   1        temp = I2C_dataread();                   //Read hex value of min from RTC
+  89   1        *m_ptr = ((temp>>4)*10)+(temp&0x0F);     //Convert hex value of min into decimal form
+  90   1        I2C_Ack();
+  91   1        temp = I2C_dataread();                   //Read hex value of hour from RTC
+  92   1        *h_ptr = ((temp>>4)*10)+(temp&0x0F);     //Convert hex value of hour into decimal form
+  93   1        I2C_NoAck();
+  94   1        
+  95   1        I2C_stop();               // stop i2c communication after reading the Time
+  96   1      }
+  97          
+  98          void ds1307_GetDate(unsigned char *d_ptr,unsigned char *m_ptr,unsigned char *y_ptr)
+  99          {
+ 100   1        unsigned int temp;
+ 101   1        I2C_start();            // start i2c communication
+ 102   1        
+ 103   1        I2C_datawrite(DS1307_ID);
+ 104   1        I2C_datawrite(DATE_ADDRESS);
+ 105   1        
+ 106   1        I2C_stop();
+ 107   1        
+ 108   1        I2C_start();
+ 109   1        I2C_datawrite(0xD1);
+ 110   1        
+ 111   1        temp = I2C_dataread();                   //Read hex value of date from RTC
+ 112   1        *d_ptr = ((temp>>4)*10)+(temp&0x0F);     //Convert hex value of date into decimal form
+ 113   1        I2C_Ack();
+ 114   1        temp = I2C_dataread();                   //Read hex value of month from RTC
+ 115   1        *m_ptr = ((temp>>4)*10)+(temp&0x0F);     //Convert hex value of month into decimal form
+ 116   1        I2C_Ack();
+C51 COMPILER V9.60.7.0   RTC                                                               01/18/2025 14:42:34 PAGE 3   
+
+ 117   1        temp = I2C_dataread();                   //Read hex value of year from RTC
+ 118   1        *y_ptr = ((temp>>4)*10)+(temp&0x0F);     //Convert hex value of year into decimal form
+ 119   1        I2C_NoAck();
+ 120   1        
+ 121   1        I2C_stop();         // stop i2c communication after reading the Time
+ 122   1      }
+ 123          
+ 124          void main()
+ 125          {
+ 126   1        unsigned char sec,min,hour,day,month,year;
+ 127   1        
+ 128   1        lcd_init();
+ 129   1        lcd_setcursor(0,0);
+ 130   1        lcd_printstring("8051 Project");
+ 131   1        lcd_setcursor(1,0);
+ 132   1        lcd_printstring("RTC Interfacing");
+ 133   1        
+ 134   1        /* Initilize the RTC(ds1307)*/
+ 135   1        ds1307_Init();
+ 136   1       
+ 137   1        /*set the time and Date only once */
+ 138   1        ds1307_SetTime(0x23,0x59,0x30);  //Set time  
+ 139   1        ds1307_SetDate(0x31,0x12,0x19);  //Set Date  
+ 140   1       
+ 141   1        delay(1000);
+ 142   1      
+ 143   1        lcd_clear();
+ 144   1        lcd_setcursor(0,0);
+ 145   1          
+ 146   1        /* Display "time" on first line*/
+ 147   1        lcd_printstring("Time: ");
+ 148   1          
+ 149   1        /* Display "date" on Second line*/
+ 150   1        lcd_setcursor(1,0);
+ 151   1        lcd_printstring("Date: ");
+ 152   1          
+ 153   1        
+ 154   1        /* Display the time and date continously */
+ 155   1        while(1)
+ 156   1        {
+ 157   2          /* Read the Time from RTC(ds1307) */
+ 158   2          ds1307_GetTime(&hour,&min,&sec);        
+ 159   2       
+ 160   2          /* Display the time on firstline 7th position*/
+ 161   2          lcd_setcursor(0,6);
+ 162   2          /*Display hours*/
+ 163   2          lcd_printnumberXdigits(hour,2);
+ 164   2          lcd_printchar(':');
+ 165   2          /*Display mins*/
+ 166   2          lcd_printnumberXdigits(min,2);
+ 167   2          lcd_printchar(':');
+ 168   2          /*Display secs*/
+ 169   2          lcd_printnumberXdigits(sec,2);
+ 170   2          
+ 171   2          /* Read the Date from RTC(ds1307) */
+ 172   2          ds1307_GetDate(&day,&month,&year);        
+ 173   2       
+ 174   2          /* Display the Date on secondline 7th position*/
+ 175   2          lcd_setcursor(1,6);
+ 176   2          /*Display date*/
+ 177   2          lcd_printnumberXdigits(day,2);
+ 178   2          lcd_printchar('/');
+C51 COMPILER V9.60.7.0   RTC                                                               01/18/2025 14:42:34 PAGE 4   
+
+ 179   2          /*Display month*/
+ 180   2          lcd_printnumberXdigits(month,2);
+ 181   2          lcd_printchar('/');
+ 182   2          /*Display year*/
+ 183   2          lcd_printnumberXdigits(year,2);
+ 184   2        }
+ 185   1      
+ 186   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1680    ----
+   CONSTANT SIZE    =     59    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2      68
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

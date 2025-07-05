@@ -1,0 +1,39 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\SETH\OneDrive\Desktop\8051 (persornal)\Keypad Interfacing (using LCD_Keypad library)\Keypad Interfacing (calc).uvproj
+Project File Date:  01/01/2025
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling Keypad Interfacing (calc).c...
+linking...
+BL51 BANKED LINKER/LOCATER V(null) - SN: Eval Version
+COPYRIGHT (null)
+".\Objects\STARTUP.obj",
+".\Objects\Keypad Interfacing (calc).obj" 
+TO ".\Objects\Keypad Interfacing (calc)" 
+PRINT(".\Listings\Keypad Interfacing (calc).m51")
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LCD_PRINTNUMBER?KEYPAD_INTERFACING__CALC_
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LCD_CLEARROW?KEYPAD_INTERFACING__CALC_
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?GETKEY?KEYPAD_INTERFACING__CALC_
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0CE0H BYTE (160%) *
+******************************************************************************
+Program Size: data=80.0 xdata=0 code=3573
+LINK/LOCATE RUN COMPLETE.  3 WARNING(S),  0 ERROR(S)
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LCD_PRINTNUMBER?KEYPAD_INTERFACING__CALC_
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LCD_CLEARROW?KEYPAD_INTERFACING__CALC_
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?GETKEY?KEYPAD_INTERFACING__CALC_
+*** FATAL ERROR L250: CODE SIZE LIMIT IN RESTRICTED VERSION EXCEEDED
+    MODULE:  C:\KEIL\C51\LIB\C51S.LIB (-----)
+    LIMIT:   0800H BYTES
+Target not created

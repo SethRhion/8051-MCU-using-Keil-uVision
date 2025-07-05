@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\EEPROM Interfacing.obj" 
+TO ".\Objects\EEPROM Interfacing" 
+PRINT(".\Listings\EEPROM Interfacing.m51")

@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\Switch interfacing.obj" 
+TO ".\Objects\Switch interfacing" 
+PRINT(".\Listings\Switch interfacing.m51")

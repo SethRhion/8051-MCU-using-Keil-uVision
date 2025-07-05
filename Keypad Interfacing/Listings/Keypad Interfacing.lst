@@ -1,0 +1,85 @@
+C51 COMPILER V9.60.7.0   KEYPAD_INTERFACING                                                01/01/2025 00:46:44 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEYPAD_INTERFACING
+OBJECT MODULE PLACED IN .\Objects\Keypad Interfacing.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE Keypad Interfacing.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.
+                    -\Listings\Keypad Interfacing.lst) TABS(2) OBJECT(.\Objects\Keypad Interfacing.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "delay.h"
+   3          
+   4          sbit rs = P1^0;
+   5          sbit en = P1^1;
+   6          unsigned int lcd_port=2;
+   7          
+   8          #include "LCD.h"   //Declared after rs,en and port declaration i.e rs,en and port are used in LCD.h functi
+             -ons
+   9          
+  10          int main()
+  11          {
+  12   1        unsigned char keys[4][3] = {{'1','2','3'},{'4','5','6'},{'7','8','9'},{'*','0','#'}};
+  13   1        unsigned int keypad_port = 3;
+  14   1        unsigned int keypad_rowpins[] = {4,5,6,7};
+  15   1        unsigned int keypad_columnpins[] = {0,1,2};
+  16   1        unsigned int r=4,c=3,i,j,k;
+  17   1        
+  18   1        lcd_init();
+  19   1        lcd_clear();
+  20   1        lcd_setcursor(0,0);
+  21   1        lcd_printstring("LCD ON");
+  22   1        delay(1000);
+  23   1        
+  24   1        lcd_clear();
+  25   1        lcd_setcursor(0,0);
+  26   1        
+  27   1        while(1)
+  28   1        {
+  29   2          for(i=0 ; i<r ; i++)
+  30   2          {
+  31   3            P3 &= ~(1<<keypad_rowpins[i]);     //Set '0' to only one row at a time
+  32   3            for(j=0 ; j<r ; j++)
+  33   3            {
+  34   4              if(i != j)
+  35   4              {
+  36   5                P3 |= (1<<keypad_rowpins[j]);     //Set '1' to all others rows at a time
+  37   5              }
+  38   4              else
+  39   4              {
+  40   5                continue;
+  41   5              }
+  42   4            }
+  43   3            
+  44   3            for(k=0 ; k<c ; k++)
+  45   3            {
+  46   4              if((P3 & (1<<keypad_columnpins[k])) == 0)     //Searching for '0' in each column one by one
+  47   4              {
+  48   5                lcd_printchar(keys[i][k]);
+  49   5                while((P3 & (1<<keypad_columnpins[k])) == 0)
+  50   5                {
+  51   6                  //Do nothing
+  52   6                }
+  53   5              }
+C51 COMPILER V9.60.7.0   KEYPAD_INTERFACING                                                01/01/2025 00:46:44 PAGE 2   
+
+  54   4            }
+  55   3            
+  56   3          }
+  57   2        }
+  58   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1033    ----
+   CONSTANT SIZE    =     49    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2      58
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

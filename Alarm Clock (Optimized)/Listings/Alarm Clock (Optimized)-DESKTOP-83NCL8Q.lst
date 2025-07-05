@@ -1,0 +1,439 @@
+C51 COMPILER V9.60.7.0   ALARM_CLOCK__OPTIMIZED_                                           01/20/2025 18:51:24 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE ALARM_CLOCK__OPTIMIZED_
+OBJECT MODULE PLACED IN .\Objects\Alarm Clock (Optimized).obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE Alarm Clock (Optimized).c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PR
+                    -INT(.\Listings\Alarm Clock (Optimized).lst) TABS(2) OBJECT(.\Objects\Alarm Clock (Optimized).obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "delay.h"
+   3          
+   4          unsigned int lcd_port=2;      //Specify Port used for rs,en,datapins as global variable
+   5          sbit en = P1^1;
+   6          sbit rs = P1^0;     //Specify rs and en pins as global variable
+   7          
+   8          #include "LCD.h"
+   9          
+  10          sbit SCL = P3^0;
+  11          sbit SDA = P3^1;
+  12          
+  13          #include "I2C.h"
+  14          
+  15          #define EEPROM_ID 0xA0     // EEPROM ID
+  16          
+  17          #include "EEPROM.h"
+  18          
+  19          #include "ds1307.h"
+  20          
+  21          sbit ModePIN = P1^3;
+  22          sbit SetPIN = P1^4;
+  23          sbit AlarmPIN = P1^6;
+  24          
+  25          unsigned int pressed = 0;
+  26          
+  27          unsigned int Mode = 0;
+  28          
+  29          unsigned char TriggerHH_24;
+  30          unsigned char address1;
+  31          unsigned char TriggerMM;
+  32          unsigned char address2;
+  33          unsigned char TriggerDurationHH;
+  34          unsigned char address3;
+  35          unsigned char TriggerDurationMM;
+  36          unsigned char address4;
+  37          
+  38          void display_TimeDate()
+  39          {
+  40   1        unsigned char sec,min,hour,format,day,month,year,weekday;
+  41   1        unsigned char weekdays[]={'M','T','W','T','F','S','S'};
+  42   1        
+  43   1        /* Read the Time from RTC(ds1307) */
+  44   1        ds1307_GetTime(&hour,&min,&sec,&format);
+  45   1        
+  46   1        /* Read the Date from RTC(ds1307) */
+  47   1        ds1307_GetDate(&day,&month,&year,&weekday);
+  48   1        
+  49   1        lcd_clear();
+  50   1        lcd_setcursor(0,0);
+  51   1          
+  52   1        /* Display "time" on first line*/
+  53   1        lcd_printstring("Time: ");
+  54   1          
+C51 COMPILER V9.60.7.0   ALARM_CLOCK__OPTIMIZED_                                           01/20/2025 18:51:24 PAGE 2   
+
+  55   1        /* Display "date" on Second line*/
+  56   1        lcd_setcursor(1,0);
+  57   1        lcd_printstring("Date: ");
+  58   1        
+  59   1        /* Display the time on firstline 7th position*/
+  60   1        lcd_setcursor(0,6);
+  61   1        /*Display hours*/
+  62   1        lcd_printnumberXdigits(hour,2);
+  63   1        lcd_printchar(':');
+  64   1        /*Display mins*/
+  65   1        lcd_printnumberXdigits(min,2);
+  66   1        lcd_printchar(':');
+  67   1        /*Display secs*/
+  68   1        lcd_printnumberXdigits(sec,2);
+  69   1        
+  70   1        lcd_setcursor(0,15);
+  71   1        if(format != '0')
+  72   1        {
+  73   2          lcd_printchar(format);      //Prints 'AM' or 'PM'
+  74   2        }
+  75   1        
+  76   1        /* Display the Date on secondline 7th position*/
+  77   1        lcd_setcursor(1,6);
+  78   1        /*Display date*/
+  79   1        lcd_printnumberXdigits(day,2);
+  80   1        lcd_printchar('/');
+  81   1        /*Display month*/
+  82   1        lcd_printnumberXdigits(month,2);
+  83   1        lcd_printchar('/');
+  84   1        /*Display year*/
+  85   1        lcd_printnumberXdigits(year,2);
+  86   1        /*Display weekday*/
+  87   1        lcd_printchar(' ');
+  88   1        lcd_printchar(weekdays[weekday-1]);
+  89   1      }
+  90          
+  91          void checkModePINstate()
+  92          {
+  93   1        if (ModePIN == pressed) {
+  94   2          if (Mode < 4) {
+  95   3            Mode ++;
+  96   3          }
+  97   2          else
+  98   2          {
+  99   3            Mode = 0;
+ 100   3          }
+ 101   2      
+ 102   2          while (ModePIN == pressed)
+ 103   2          {
+ 104   3            //Do nothing
+ 105   3          }
+ 106   2        }
+ 107   1      }
+ 108          
+ 109          void SetTimeHH()
+ 110          {
+ 111   1        unsigned char HH,MM,SS,format;
+ 112   1        
+ 113   1        ds1307_GetTime(&HH,&MM,&SS,&format);
+ 114   1        
+ 115   1        lcd_clear();   //Displaying on LCD Display
+ 116   1        lcd_setcursor(0, 0);
+C51 COMPILER V9.60.7.0   ALARM_CLOCK__OPTIMIZED_                                           01/20/2025 18:51:24 PAGE 3   
+
+ 117   1        lcd_printstring("Set Time (hrs)");
+ 118   1        lcd_setcursor(1, 0);
+ 119   1        lcd_printnumberXdigits(HH,2);
+ 120   1        lcd_printchar(' ');
+ 121   1        lcd_printchar(':');
+ 122   1        lcd_printchar(' ');
+ 123   1        lcd_printnumberXdigits(MM,2);
+ 124   1        
+ 125   1        if(format != '0')
+ 126   1        {
+ 127   2          lcd_printstring(" ");
+ 128   2          lcd_printchar(format);
+ 129   2        }
+ 130   1        
+ 131   1      
+ 132   1        if(SetPIN == pressed) //If SetPINstate is pressed during Hour setting
+ 133   1        {
+ 134   2          if(format=='0')
+ 135   2          {
+ 136   3            if(HH < 23)
+ 137   3            {
+ 138   4              HH ++;
+ 139   4              ds1307_SetHour(HH,'0');     //Transition between 00:00 and 23:00
+ 140   4            }
+ 141   3            else
+ 142   3            {
+ 143   4              HH = 12;
+ 144   4              ds1307_SetHour(HH,'A');     //Transition from 23:00 to 12AM
+ 145   4            }
+ 146   3          }
+ 147   2          else if(format=='A')
+ 148   2          {
+ 149   3            
+ 150   3            if(HH == 12)
+ 151   3            {
+ 152   4              HH = 1;
+ 153   4              ds1307_SetHour(HH,'A');    //Transition from 12AM to 1AM
+ 154   4            }
+ 155   3            else if(HH < 11)
+ 156   3            {
+ 157   4              HH ++;
+ 158   4              ds1307_SetHour(HH,'A');    //Transition between 1AM to 11AM
+ 159   4            }
+ 160   3            else if(HH == 11)
+ 161   3            {
+ 162   4              HH = 12;
+ 163   4              ds1307_SetHour(HH,'P');    //Transition from 11AM to 12PM
+ 164   4            }
+ 165   3          }
+ 166   2          else if(format=='P')
+ 167   2          {
+ 168   3            if(HH == 12)
+ 169   3            {
+ 170   4              HH = 1;
+ 171   4              ds1307_SetHour(HH,'P');    //Transition from 12PM to 1PM
+ 172   4            }
+ 173   3            else if(HH < 11)
+ 174   3            {
+ 175   4              HH ++;
+ 176   4              ds1307_SetHour(HH,'P');    //Transition between 1PM to 11PM
+ 177   4            }
+ 178   3            else if(HH == 11)
+C51 COMPILER V9.60.7.0   ALARM_CLOCK__OPTIMIZED_                                           01/20/2025 18:51:24 PAGE 4   
+
+ 179   3            {
+ 180   4              HH = 0;
+ 181   4              ds1307_SetHour(HH,'0');    //Transition from 11PM to 00:00 midnight
+ 182   4            }
+ 183   3          }
+ 184   2      
+ 185   2          while (SetPIN == pressed)
+ 186   2          {
+ 187   3            //Do nothing
+ 188   3          }
+ 189   2        }
+ 190   1        
+ 191   1      }
+ 192          
+ 193          void SetTimeMM()
+ 194          {
+ 195   1        unsigned char HH,MM,SS,format;
+ 196   1        ds1307_GetTime(&HH,&MM,&SS,&format);
+ 197   1        
+ 198   1        lcd_clear();   //Displaying on LCD Display
+ 199   1        lcd_setcursor(0, 0);
+ 200   1        lcd_printstring("Set Time (mins)");
+ 201   1        lcd_setcursor(1, 0);
+ 202   1        lcd_printnumberXdigits(HH,2);
+ 203   1        lcd_printchar(' ');
+ 204   1        lcd_printchar(':');
+ 205   1        lcd_printchar(' ');
+ 206   1        lcd_printnumberXdigits(MM,2);
+ 207   1        
+ 208   1        if(format != '0')
+ 209   1        {
+ 210   2          lcd_printstring(" ");
+ 211   2          lcd_printchar(format);
+ 212   2        }
+ 213   1        
+ 214   1        if(SetPIN == pressed) //If SetPINstate is pressed during Minutes setting
+ 215   1        {
+ 216   2          if(MM < 59)
+ 217   2          {
+ 218   3            MM ++;
+ 219   3          }
+ 220   2          else
+ 221   2          {
+ 222   3            MM = 0;
+ 223   3          }
+ 224   2          while (SetPIN == pressed)
+ 225   2          {
+ 226   3            //Do nothing
+ 227   3          }
+ 228   2        }
+ 229   1        
+ 230   1        ds1307_SetMin(MM);   //Update Mins in ds1307
+ 231   1      }
+ 232          
+ 233          void SetTriggerTimeHH()
+ 234          {
+ 235   1        TriggerHH_24 = EEPROM_read(address1);
+ 236   1        TriggerMM = EEPROM_read(address2);
+ 237   1        
+ 238   1        //lcd_clear();   //Displaying on LCD Display
+ 239   1        //lcd_setcursor(0, 0);
+ 240   1        //lcd_printstring("Set Trigger Time");
+C51 COMPILER V9.60.7.0   ALARM_CLOCK__OPTIMIZED_                                           01/20/2025 18:51:24 PAGE 5   
+
+ 241   1        //lcd_setcursor(1, 0);
+ 242   1        //lcd_printstring("Hours:");
+ 243   1        //lcd_printnumberXdigits(TriggerHH_24, 2);
+ 244   1        //lcd_setcursor(1, 9);
+ 245   1        //lcd_printstring("Mins:");
+ 246   1        //lcd_printnumberXdigits(TriggerMM, 2);
+ 247   1        
+ 248   1        lcd_clear();   //Displaying on LCD Display
+ 249   1        lcd_setcursor(0, 0);
+ 250   1        lcd_printstring("Set Trigger Time");
+ 251   1        lcd_setcursor(1, 0);
+ 252   1        lcd_printnumberXdigits(TriggerHH_24,2);
+ 253   1        lcd_printchar(' ');
+ 254   1        lcd_printchar(':');
+ 255   1        lcd_printchar(' ');
+ 256   1        lcd_printnumberXdigits(TriggerMM,2);
+ 257   1        
+ 258   1        if(SetPIN == pressed) //If SetPIN is pressed during Hour setting
+ 259   1        {
+ 260   2          if(TriggerHH_24 < 23)
+ 261   2          {
+ 262   3            TriggerHH_24 ++;
+ 263   3          }
+ 264   2          else
+ 265   2          {
+ 266   3            TriggerHH_24 = 0;
+ 267   3          }
+ 268   2          while (SetPIN == pressed)
+ 269   2          {
+ 270   3            //Do nothing
+ 271   3          }
+ 272   2        }
+ 273   1        EEPROM_write(address1, TriggerHH_24);
+ 274   1      }
+ 275          
+ 276          void SetTriggerTimeMM()
+ 277          {
+ 278   1        TriggerHH_24 = EEPROM_read(address1);
+ 279   1        TriggerMM = EEPROM_read(address2);
+ 280   1        
+ 281   1        lcd_clear();   //Displaying on LCD Display
+ 282   1        lcd_setcursor(0, 0);
+ 283   1        lcd_printstring("Set Trigger Time");
+ 284   1        lcd_setcursor(1, 0);
+ 285   1        lcd_printnumberXdigits(TriggerHH_24,2);
+ 286   1        lcd_printchar(' ');
+ 287   1        lcd_printchar(':');
+ 288   1        lcd_printchar(' ');
+ 289   1        lcd_printnumberXdigits(TriggerMM,2);
+ 290   1        
+ 291   1        if(SetPIN == pressed) //If SetPIN is pressed during Hour setting
+ 292   1        {
+ 293   2          if(TriggerMM < 59)
+ 294   2          {
+ 295   3            TriggerMM ++;
+ 296   3          }
+ 297   2          else
+ 298   2          {
+ 299   3            TriggerMM = 0;
+ 300   3          }
+ 301   2          while (SetPIN == pressed)
+ 302   2          {
+C51 COMPILER V9.60.7.0   ALARM_CLOCK__OPTIMIZED_                                           01/20/2025 18:51:24 PAGE 6   
+
+ 303   3            //Do nothing
+ 304   3          }
+ 305   2        }
+ 306   1        EEPROM_write(address2, TriggerMM);
+ 307   1      }
+ 308          
+ 309          void TimeControlledTrigger()
+ 310          {
+ 311   1        unsigned char currentHH;
+ 312   1        unsigned char currentMM;
+ 313   1        unsigned char currentSS;
+ 314   1        unsigned char format;
+ 315   1        
+ 316   1        ds1307_GetTime(&currentHH, &currentMM, &currentSS, &format);      //Getting Current time details from RTC
+ 317   1        
+ 318   1        TriggerHH_24 = EEPROM_read(address1);
+ 319   1        TriggerMM = EEPROM_read(address2);
+ 320   1        TriggerDurationHH = EEPROM_read(address3);
+ 321   1        TriggerDurationMM = EEPROM_read(address4);
+ 322   1        
+ 323   1        if (((currentHH >= TriggerHH_24)&&(currentHH <= (TriggerHH_24+TriggerDurationHH))) && ((currentMM >= Tri
+             -ggerMM)&&(currentMM <= (TriggerMM+TriggerDurationMM))))
+ 324   1        {
+ 325   2          AlarmPIN = 1;
+ 326   2        }
+ 327   1        else
+ 328   1        {
+ 329   2          AlarmPIN = 0;
+ 330   2        }
+ 331   1      }
+ 332          
+ 333          void main()
+ 334          {
+ 335   1        address1 = 0x00;                                   //EEPROM address for TriggerHH_24
+ 336   1        address2 = address1 + sizeof(TriggerHH_24);        //EEPROM address for TriggerMM
+ 337   1        address3 = address2 + sizeof(TriggerMM);           //EEPROM address for TriggerDurationHH
+ 338   1        address4 = address3 + sizeof(TriggerDurationHH);   //EEPROM address for TriggerDurationMM
+ 339   1        
+ 340   1        EEPROM_write(address1, 00);     //Initially storing TriggerHH as '00' into EEPROM
+ 341   1        EEPROM_write(address2, 01);     //Initially storing TriggerMM as '01' into EEPROM
+ 342   1        EEPROM_write(address3, 00);     //Initially storing TriggerDurationHH as '00' into EEPROM
+ 343   1        EEPROM_write(address4, 03);     //Initially storing TriggerDurationMM as '03' into EEPROM
+ 344   1        
+ 345   1        lcd_init();
+ 346   1        lcd_setcursor(0,0);
+ 347   1        lcd_printstring("8051 Project");
+ 348   1        lcd_setcursor(1,0);
+ 349   1        lcd_printstring("ALARM CLOCK");
+ 350   1        
+ 351   1        /* Initilize the RTC(ds1307)*/
+ 352   1        ds1307_Init();
+ 353   1       
+ 354   1        /*set the time and Date only once */
+ 355   1        ds1307_SetTime(23,59,30);  //Initially Setting time
+ 356   1        ds1307_SetDate(31,12,19,1);  //Initially Setting Date  
+ 357   1       
+ 358   1        delay(1000);
+ 359   1        
+ 360   1        //ds1307_GetTime(&HH,&MM,&SS);
+ 361   1        
+ 362   1        AlarmPIN = 0;   //Initially setting alarm OFF
+ 363   1          
+C51 COMPILER V9.60.7.0   ALARM_CLOCK__OPTIMIZED_                                           01/20/2025 18:51:24 PAGE 7   
+
+ 364   1        while(1)
+ 365   1        {
+ 366   2          checkModePINstate();
+ 367   2          switch(Mode)
+ 368   2          {
+ 369   3            case 1:
+ 370   3              SetTimeHH();
+ 371   3              break;
+ 372   3            case 2:
+ 373   3              SetTimeMM();
+ 374   3              break;
+ 375   3            //case 3:
+ 376   3              //SetDate();
+ 377   3              //break;
+ 378   3            //case 4:
+ 379   3              //SetMonth();
+ 380   3              //break;
+ 381   3            //case 5:
+ 382   3              //SetYear();
+ 383   3              //break;
+ 384   3            case 3:
+ 385   3              SetTriggerTimeHH();
+ 386   3              break;
+ 387   3            case 4:
+ 388   3              SetTriggerTimeMM();
+ 389   3              break;
+ 390   3            //case 8:
+ 391   3              //SetTriggerDuration();
+ 392   3              //break;
+ 393   3            default:
+ 394   3              display_TimeDate();
+ 395   3              break;
+ 396   3          }
+ 397   2          
+ 398   2          TimeControlledTrigger();
+ 399   2        
+ 400   2        }
+ 401   1      
+ 402   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3155    ----
+   CONSTANT SIZE    =    126    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14     124
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

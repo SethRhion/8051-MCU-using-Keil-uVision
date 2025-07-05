@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\SPI_ADC.obj" 
+TO ".\Objects\SPI Protocol" 
+PRINT(".\Listings\SPI Protocol.m51")

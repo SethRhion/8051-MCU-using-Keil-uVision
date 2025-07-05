@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\Alarm Clock.obj" 
+TO ".\Objects\Alarm Clock" 
+PRINT(".\Listings\Alarm Clock.m51")

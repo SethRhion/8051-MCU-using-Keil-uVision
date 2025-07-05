@@ -1,0 +1,150 @@
+C51 COMPILER V9.60.7.0   I2C_PROTOCOL                                                      01/02/2025 20:08:43 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE I2C_PROTOCOL
+OBJECT MODULE PLACED IN .\Objects\I2C Protocol.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE I2C Protocol.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listi
+                    -ngs\I2C Protocol.lst) TABS(2) OBJECT(.\Objects\I2C Protocol.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "delay.h"
+   3          
+   4          unsigned int lcd_port=2;      //Specify Port used for rs,en,datapins as global variable
+   5          sbit en = P1^1;
+   6          sbit rs = P1^0;     //Specify rs and en pins as global variable
+   7          
+   8          #include "LCD.h"
+   9          
+  10          sbit SCL = P3^0;
+  11          sbit SDA = P3^1;
+  12          
+  13          void I2C_start();
+  14          void I2C_stop();
+  15          void I2C_datawrite(unsigned char I2C_data);     //Writes one byte of Data (8-bits), 1-bit at time
+  16          unsigned char I2C_dataread();     //Reads one byte of Data (8-bits), 1-bit at time
+  17          
+  18          void I2C_start()
+  19          {
+  20   1        SCL = 1;
+  21   1        SDA = 1;
+  22   1        delay(5);
+  23   1        SDA = 0;
+  24   1        delay(5);
+  25   1        SCL = 0;
+  26   1      }
+  27          
+  28          void I2C_stop()
+  29          {
+  30   1        SCL = 0;
+  31   1        SDA = 0;
+  32   1        delay(5);
+  33   1        SCL = 1;
+  34   1        delay(5);
+  35   1        SDA = 1;
+  36   1      }
+  37          
+  38          void I2C_datawrite(unsigned char I2C_data)     //Writes one byte of Data (8-bits), 1-bit at time
+  39          {
+  40   1        unsigned char i;
+  41   1        for(i=0 ; i<8 ; i++)
+  42   1        {
+  43   2          SDA = (I2C_data & 0x80)?1:0;    //If first MSB is '1' send '1' else send '0'
+  44   2          SCL = 1;
+  45   2          delay(5);
+  46   2          SCL = 0;
+  47   2          I2C_data = I2C_data<<1;    //bits are sent from MSB to LSB
+  48   2        }
+  49   1        SDA = 1;  //Slave will return '0' as ACK i.e SDA=0, if it remains as '1' then no ACK was recieved
+  50   1        SCL = 1;
+  51   1        while(SDA==1)   //waiting for '0' (ACK) from slave
+  52   1        {
+  53   2          //Do nothing or Wait
+  54   2        }
+C51 COMPILER V9.60.7.0   I2C_PROTOCOL                                                      01/02/2025 20:08:43 PAGE 2   
+
+  55   1        SCL = 0;
+  56   1        delay(5);
+  57   1      }
+  58          
+  59          unsigned char I2C_dataread()     //Reads one byte of Data (8-bits), 1-bit at time
+  60          {
+  61   1        bit rd_bit;
+  62   1        unsigned char i, I2C_data;
+  63   1        for(i=0 ; i<8 ; i++)
+  64   1        {
+  65   2          delay(5);
+  66   2          SCL = 1;
+  67   2          delay(5);
+  68   2          rd_bit = SDA;    //Storing 1-bit recieved from SDA
+  69   2          I2C_data = I2C_data<<1;    //bits are recieved from MSB to LSB
+  70   2          I2C_data = I2C_data | rd_bit;
+  71   2          SCL = 0;
+  72   2        }
+  73   1        SDA = 1;   //Sending negative-ACK from master
+  74   1        SCL = 1;
+  75   1        delay(5);
+  76   1        SCL = 0;
+  77   1        return I2C_data;
+  78   1      }
+  79          
+  80          void main()
+  81          {
+  82   1        unsigned char x;
+  83   1        
+  84   1        lcd_init();
+  85   1        lcd_setcursor(0,0);
+  86   1        lcd_printstring("8051 Project");
+  87   1        lcd_setcursor(1,0);
+  88   1        lcd_printstring("I2C Protocol");
+  89   1        delay(1000);
+  90   1        
+  91   1        /*Writing Data to slave*/
+  92   1        I2C_start();
+  93   1        I2C_datawrite(0xA0);   //sending slave address '1010 000-0' (7-bit address + 1-bit R/W ('0'=write, '1'=re
+             -ad))
+  94   1        I2C_datawrite(0x00);   //sending register's address/memory location address (8-bits address)
+  95   1        I2C_datawrite('A');   //Writing Data (8-bits Data) to slave
+  96   1        I2C_stop();
+  97   1        
+  98   1        delay(500);     //Necessasily for distinguishing write and read operations
+  99   1        
+ 100   1        /*Reading Data from slave*/
+ 101   1        I2C_start();
+ 102   1        I2C_datawrite(0xA0);   //sending slave address '1010 000-0' (7-bit address + 1-bit R/W ('0'=write, '1'=re
+             -ad))
+ 103   1        I2C_datawrite(0x00);   //sending register's address/memory location address (8-bits address)
+ 104   1        I2C_start();
+ 105   1        I2C_datawrite(0xA1);   //sending slave address '1010 000-1' (7-bit address + 1-bit R/W ('0'=write, '1'=re
+             -ad))
+ 106   1        x = I2C_dataread();   //Reading Data (8-bits Data) from slave
+ 107   1        I2C_stop();
+ 108   1        
+ 109   1        lcd_clear();
+ 110   1        lcd_setcursor(0,0);
+ 111   1        lcd_printstring("Recieved Data");
+ 112   1        lcd_setcursor(1,0);
+ 113   1        lcd_printchar(x);
+C51 COMPILER V9.60.7.0   I2C_PROTOCOL                                                      01/02/2025 20:08:43 PAGE 3   
+
+ 114   1        
+ 115   1        while(1)
+ 116   1        {
+ 117   2          //MY CODE
+ 118   2        }
+ 119   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    981    ----
+   CONSTANT SIZE    =     56    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2      27
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
